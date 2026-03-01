@@ -24,6 +24,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('courses', \App\Http\Controllers\CourseController::class);
     Route::resource('courses.tasks', \App\Http\Controllers\TaskController::class);
     Route::resource('courses.quizzes', \App\Http\Controllers\QuizController::class);
+
+    // Participants
+    Route::get('courses/{course}/participants', [\App\Http\Controllers\CourseParticipantController::class, 'index'])->name('courses.participants.index');
+    Route::post('courses/{course}/participants', [\App\Http\Controllers\CourseParticipantController::class, 'store'])->name('courses.participants.store');
+    Route::delete('courses/{course}/participants/{participant}', [\App\Http\Controllers\CourseParticipantController::class, 'destroy'])->name('courses.participants.destroy');
 });
 
 require __DIR__ . '/auth.php';

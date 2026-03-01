@@ -123,6 +123,9 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-l border-gray-100">
                                         <div class="flex items-center justify-end space-x-2">
+                                            <a href="{{ route('courses.participants.index', $course->id) }}"
+                                                class="text-teal-600 hover:text-teal-900 bg-teal-50 px-2.5 py-1.5 rounded-md transition-colors font-medium border border-teal-100 shadow-sm text-xs" title="Peserta">Peserta</a>
+                                            
                                             <a href="{{ route('courses.tasks.index', $course->id) }}"
                                                 class="text-blue-600 hover:text-blue-900 bg-blue-50 px-2.5 py-1.5 rounded-md transition-colors font-medium border border-blue-100 shadow-sm text-xs" title="Tugas">Tugas</a>
                                             

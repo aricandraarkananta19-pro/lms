@@ -59,4 +59,9 @@ class Course extends Model implements HasMedia
     {
         return $this->hasMany(Quiz::class);
     }
+
+    public function participants()
+    {
+        return $this->belongsToMany(User::class)->withPivot('enrolled_at')->withTimestamps();
+    }
 }
