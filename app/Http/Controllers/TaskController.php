@@ -66,4 +66,23 @@ class TaskController extends Controller
         $task->delete();
         return redirect()->route('courses.tasks.index', $course)->with('success', 'Tugas berhasil dihapus.');
     }
+
+    public function submit(Request $request, Course $course, Task $task)
+    {
+        $request->validate([
+            'file' => 'required|file|max:10240' // 10MB max
+        ]);
+
+        $filePath = $request->file('file')->store('task_submissions', 'public');
+
+        \App\Models\TaskSubmission::updateOrCreate(
+            ['user_id' => auth()->id(), 'task_id' => $task->id],
+            [
+                'file_path' => $filePath,
+                'status' => 'Menunggu Penilaian'
+            ]
+        );
+
+        return redirect()->back()->with('success', 'Tugas berhasil diunggah dan menunggu penilaian.');
+    }
 }
