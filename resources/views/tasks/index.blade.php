@@ -1,91 +1,287 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center space-x-3 py-1">
-            <a href="{{ route('courses.index') }}" class="text-gray-400 hover:text-indigo-600 transition-colors">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+        <div style="display:flex;align-items:center;gap:12px">
+            <a href="{{ route('courses.index') }}"
+                style="color:#94A3B8;text-decoration:none;display:flex;transition:color .15s"
+                onmouseover="this.style.color='#4F46E5'" onmouseout="this.style.color='#94A3B8'">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
-                Tugas: {{ $course->title }}
-            </h2>
+            <h1 style="font-size:18px;font-weight:700;margin:0">Tugas Peserta: {{ $course->title }}</h1>
         </div>
     </x-slot>
 
-    <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    @push('styles')
+        <style>
+            .tg {
+                display: grid;
+                gap: 16px;
+                min-height: 600px;
+            }
 
-            @if(session('success'))
-                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-md shadow-sm mb-6 flex items-start">
-                    <div class="ml-3">
-                        <p class="text-sm text-emerald-700 font-medium">{{ session('success') }}</p>
-                    </div>
-                </div>
-            @endif
+            .tg-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
 
-            <div class="flex justify-end mb-4">
-                <a href="{{ route('courses.tasks.create', $course) }}"
-                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                    Tambah Tugas Baru
-                </a>
+            .btn-add {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-weight: 600;
+                font-size: 13px;
+                background: #4F46E5;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                text-decoration: none;
+                box-shadow: 0 2px 8px rgba(79, 70, 229, .25);
+                transition: all .15s;
+            }
+
+            .btn-add:hover {
+                background: #4338CA;
+                transform: translateY(-1px);
+            }
+
+            .task-card {
+                background: #fff;
+                border: 1px solid #E2E8F0;
+                border-radius: 16px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+                overflow: hidden;
+            }
+
+            .task-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+
+            .task-table th {
+                text-align: left;
+                font-size: 11px;
+                color: #64748B;
+                text-transform: uppercase;
+                letter-spacing: .06em;
+                font-weight: 600;
+                padding: 16px 20px;
+                background: #F8FAFC;
+                border-bottom: 1px solid #E2E8F0;
+            }
+
+            .task-table td {
+                padding: 16px 20px;
+                font-size: 13px;
+                border-bottom: 1px solid #F1F5F9;
+                color: #475569;
+            }
+
+            .task-table tr:hover td {
+                background: #F8FAFC;
+            }
+
+            .task-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            .task-title {
+                font-weight: 600;
+                color: #0F172A;
+                margin-bottom: 2px;
+                font-size: 14px;
+            }
+
+            .task-desc {
+                font-size: 12px;
+                color: #94A3B8;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .task-due {
+                font-size: 12px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .due-ok {
+                color: #059669;
+            }
+
+            .due-soon {
+                color: #B45309;
+            }
+
+            .due-past {
+                color: #DC2626;
+            }
+
+            .btn-action {
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 8px;
+                font-weight: 600;
+                text-decoration: none;
+                display: inline-flex;
+                transition: all .15s;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+            }
+
+            .btn-view {
+                background: #EEF2FF;
+                color: #4F46E5;
+            }
+
+            .btn-view:hover {
+                background: #C7D2FE;
+            }
+
+            .btn-edit {
+                background: #F1F5F9;
+                color: #475569;
+            }
+
+            .btn-edit:hover {
+                background: #E2E8F0;
+            }
+
+            .btn-del {
+                background: #FEE2E2;
+                color: #DC2626;
+            }
+
+            .btn-del:hover {
+                background: #FECACA;
+            }
+
+            .empty-box {
+                text-align: center;
+                padding: 60px 20px;
+            }
+
+            .empty-box h3 {
+                font-size: 16px;
+                font-weight: 700;
+                color: #0F172A;
+                margin: 12px 0 4px;
+            }
+
+            .empty-box p {
+                font-size: 13px;
+                color: #64748B;
+                margin-bottom: 20px;
+            }
+
+            .alert-success {
+                background: #D1FAE5;
+                border: 1px solid #A7F3D0;
+                color: #047857;
+                padding: 12px 16px;
+                border-radius: 12px;
+                font-size: 13px;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+        </style>
+    @endpush
+
+    <div class="tg">
+        @if(session('success'))
+            <div class="alert-success">✅ {{ session('success') }}</div>
+        @endif
+
+        <div class="tg-top">
+            <div style="font-size:14px;color:#64748B;display:flex;align-items:center;gap:8px">
+                <span
+                    style="background:#F1F5F9;color:#0F172A;font-weight:700;padding:4px 10px;border-radius:20px;font-size:12px">{{ $tasks->count() }}
+                    Tugas</span>
+                untuk pelatihan ini
             </div>
+            <a href="{{ route('courses.tasks.create', $course) }}" class="btn-add">➕ Buat Tugas</a>
+        </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+        <div class="task-card">
+            @if($tasks->count() > 0)
+                <div style="overflow-x:auto">
+                    <table class="task-table">
+                        <thead>
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Judul
-                                    Tugas</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Tenggat
-                                    Waktu</th>
-                                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+                                <th>Tugas Evaluasi</th>
+                                <th>Tenggat Waktu</th>
+                                <th style="text-align:right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-100">
-                            @forelse($tasks as $task)
-                                <tr class="hover:bg-gray-50/80 transition-colors duration-200">
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-semibold text-gray-900">{{ $task->title }}</div>
-                                        <div class="text-xs text-gray-500 line-clamp-1 max-w-sm">
-                                            {{ Str::limit($task->description, 50) }}</div>
+                        <tbody>
+                            @foreach($tasks as $task)
+                                @php
+                                    $isPast = $task->due_date && \Carbon\Carbon::parse($task->due_date)->isPast();
+                                    $isSoon = $task->due_date && !$isPast && \Carbon\Carbon::parse($task->due_date)->diffInDays(now()) <= 3;
+                                @endphp
+                                <tr>
+                                    <td style="width:50%">
+                                        <div class="task-title">{{ $task->title }}</div>
+                                        <div class="task-desc">
+                                            {{ $task->description ?: 'Instruksi tugas pengerjaan evaluasi peserta' }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-700">
-                                            {{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('d M Y, H:i') : 'Tidak ada tenggat' }}
-                                        </div>
+                                    <td>
+                                        @if($task->due_date)
+                                            <div class="task-due {{ $isPast ? 'due-past' : ($isSoon ? 'due-soon' : 'due-ok') }}">
+                                                <span style="font-size:16px">{{ $isPast ? '⚠️' : ($isSoon ? '⏰' : '📅') }}</span>
+                                                {{ \Carbon\Carbon::parse($task->due_date)->format('d M Y, H:i') }}
+                                            </div>
+                                            <div style="font-size:11px;color:#94A3B8;margin-top:2px;margin-left:24px">
+                                                {{ $isPast ? 'Overdue' : 'Aktif' }}
+                                            </div>
+                                        @else
+                                            <span style="font-size:12px;color:#94A3B8">Tidak ada batas tenggat</span>
+                                        @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center justify-end space-x-3">
+                                    <td style="text-align:right">
+                                        <div style="display:flex;gap:6px;justify-content:flex-end">
                                             <a href="{{ route('courses.tasks.show', [$course, $task]) }}"
-                                                class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-blue-100 shadow-sm">Lihat/Kerjakan</a>
+                                                class="btn-action btn-view" title="Lihat Detail">Lihat</a>
                                             <a href="{{ route('courses.tasks.edit', [$course, $task]) }}"
-                                                class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-indigo-100 shadow-sm">Edit</a>
-                                            <form action="{{ route('courses.tasks.destroy', [$course, $task]) }}"
-                                                method="POST" class="inline-block"
-                                                onsubmit="return confirm('Hapus tugas ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-md transition-colors font-medium border border-red-100 shadow-sm">Hapus</button>
+                                                class="btn-action btn-edit" title="Edit">✏️</a>
+                                            <form action="{{ route('courses.tasks.destroy', [$course, $task]) }}" method="POST"
+                                                class="inline" onsubmit="return confirm('Hapus tugas ini secara permanen?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn-action btn-del" title="Hapus">🗑️</button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="px-6 py-14 text-center">
-                                        <h3 class="text-lg font-medium text-gray-900">Belum ada tugas</h3>
-                                        <p class="mt-1 text-sm text-gray-500">Mulai tambahkan tugas untuk kursus ini.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
-            </div>
+            @else
+                <div class="empty-box">
+                    <svg width="48" height="48" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <h3>Belum ada tugas</h3>
+                    <p>Buat tugas pertama untuk evaluasi peserta di pelatihan ini</p>
+                    <a href="{{ route('courses.tasks.create', $course) }}" class="btn-add">➕ Buat Tugas Pertama</a>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

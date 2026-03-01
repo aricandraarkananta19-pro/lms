@@ -14,11 +14,30 @@ class Course extends Model implements HasMedia
     /** @use HasFactory<\Database\Factories\CourseFactory> */
     use HasFactory, InteractsWithMedia;
 
+    const CATEGORIES = [
+        'service-excellence' => 'Service Excellence',
+        'administrasi-keuangan' => 'Administrasi Keuangan',
+        'administrasi-perkantoran' => 'Administrasi Perkantoran',
+        'aplikasi-perkantoran' => 'Aplikasi Perkantoran',
+        'hr-sdm' => 'Staff HR / SDM',
+        'pelayanan-pelanggan' => 'Pelayanan Pelanggan',
+    ];
+
+    const LEVELS = [
+        'beginner' => 'Beginner',
+        'intermediate' => 'Intermediate',
+        'advanced' => 'Advanced',
+    ];
+
     protected $fillable = [
         'title',
         'slug',
         'description',
         'price',
+        'category',
+        'level',
+        'duration_hours',
+        'status',
     ];
 
     protected static function boot()

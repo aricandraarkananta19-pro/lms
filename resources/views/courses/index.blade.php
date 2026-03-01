@@ -1,183 +1,634 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-1">
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
-                {{ __('Manajemen Kursus') }}
-            </h2>
-            <div class="mt-4 sm:mt-0">
-                <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Tambah Kursus
-                </a>
-            </div>
-        </div>
+        <h1 style="font-size:18px;font-weight:700;margin:0;">Manajemen Pelatihan</h1>
     </x-slot>
 
-    <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    @push('styles')
+        <style>
+            .pg {
+                display: grid;
+                gap: 16px;
+            }
 
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform -translate-y-2"
-                    x-transition:enter-end="opacity-100 transform translate-y-0"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 transform translate-y-0"
-                    x-transition:leave-end="opacity-0 transform -translate-y-2"
-                    class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-md shadow-sm mb-6 flex items-start"
-                    role="alert">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-emerald-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
+            .pg-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .pg-desc {
+                font-size: 14px;
+                color: #64748B;
+            }
+
+            .btn-add {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-weight: 600;
+                font-size: 13px;
+                background: #4F46E5;
+                color: #fff;
+                text-decoration: none;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+                box-shadow: 0 2px 8px rgba(79, 70, 229, .25);
+                transition: all .2s;
+            }
+
+            .btn-add:hover {
+                background: #4338CA;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(79, 70, 229, .3);
+            }
+
+            /* Category Tabs */
+            .cat-tabs {
+                display: flex;
+                gap: 6px;
+                overflow-x: auto;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .cat-tabs::-webkit-scrollbar {
+                height: 0;
+            }
+
+            .cat-tab {
+                padding: 8px 16px;
+                border-radius: 10px;
+                font-size: 12px;
+                font-weight: 600;
+                white-space: nowrap;
+                cursor: pointer;
+                text-decoration: none;
+                transition: all .15s;
+                border: 1px solid #E2E8F0;
+                background: #fff;
+                color: #475569;
+            }
+
+            .cat-tab:hover {
+                border-color: #4F46E5;
+                color: #4F46E5;
+                background: #EEF2FF;
+            }
+
+            .cat-tab.active {
+                background: #4F46E5;
+                color: #fff;
+                border-color: #4F46E5;
+            }
+
+            /* Stats */
+            .pg-stats {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+
+            .pgs {
+                background: #fff;
+                border: 1px solid #E2E8F0;
+                border-radius: 14px;
+                padding: 16px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+            }
+
+            .pgs-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+                flex-shrink: 0;
+            }
+
+            .pgs-val {
+                font-size: 20px;
+                font-weight: 800;
+                color: #0F172A;
+            }
+
+            .pgs-lbl {
+                font-size: 11px;
+                color: #64748B;
+                font-weight: 500;
+            }
+
+            /* Search & Filter */
+            .search-bar {
+                background: #fff;
+                border: 1px solid #E2E8F0;
+                border-radius: 14px;
+                padding: 12px 16px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+            }
+
+            .search-bar input {
+                border: none;
+                outline: none;
+                flex: 1;
+                font-size: 13px;
+                font-family: inherit;
+                color: #0F172A;
+                background: transparent;
+            }
+
+            .search-bar input::placeholder {
+                color: #94A3B8;
+            }
+
+            /* Course Grid */
+            .course-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+
+            .course-card {
+                background: #fff;
+                border: 1px solid #E2E8F0;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+                transition: all .2s;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .course-card:hover {
+                box-shadow: 0 8px 25px rgba(0, 0, 0, .08);
+                transform: translateY(-3px);
+                border-color: #C7D2FE;
+            }
+
+            .cc-thumb {
+                height: 140px;
+                position: relative;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .cc-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .cc-thumb-placeholder {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 32px;
+            }
+
+            .cc-cat-badge {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                font-size: 10px;
+                padding: 3px 10px;
+                border-radius: 20px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+                backdrop-filter: blur(4px);
+            }
+
+            .cc-status {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 10px;
+                padding: 3px 8px;
+                border-radius: 20px;
+                font-weight: 700;
+            }
+
+            .cc-body {
+                padding: 16px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .cc-level {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+                margin-bottom: 6px;
+            }
+
+            .cc-title {
+                font-size: 14px;
+                font-weight: 700;
+                color: #0F172A;
+                margin-bottom: 4px;
+                line-height: 1.4;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .cc-desc {
+                font-size: 12px;
+                color: #64748B;
+                line-height: 1.5;
+                margin-bottom: 12px;
+                flex: 1;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .cc-meta {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 14px;
+            }
+
+            .cc-meta-item {
+                font-size: 11px;
+                color: #94A3B8;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-weight: 500;
+            }
+
+            .cc-footer {
+                padding: 12px 16px;
+                border-top: 1px solid #F1F5F9;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .cc-price {
+                font-size: 15px;
+                font-weight: 800;
+                color: #4F46E5;
+            }
+
+            .cc-actions {
+                display: flex;
+                gap: 4px;
+            }
+
+            .cc-btn {
+                font-size: 11px;
+                padding: 5px 10px;
+                border-radius: 8px;
+                font-weight: 600;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+                transition: all .15s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+            }
+
+            .cc-btn-view {
+                background: #EEF2FF;
+                color: #4F46E5;
+            }
+
+            .cc-btn-view:hover {
+                background: #C7D2FE;
+            }
+
+            .cc-btn-edit {
+                background: #F1F5F9;
+                color: #475569;
+            }
+
+            .cc-btn-edit:hover {
+                background: #E2E8F0;
+            }
+
+            .cc-btn-del {
+                background: #FEE2E2;
+                color: #DC2626;
+            }
+
+            .cc-btn-del:hover {
+                background: #FECACA;
+            }
+
+            /* Category colors */
+            .cat-se {
+                background: rgba(79, 70, 229, .12);
+                color: #4F46E5;
+            }
+
+            .cat-ak {
+                background: rgba(16, 185, 129, .12);
+                color: #059669;
+            }
+
+            .cat-ap {
+                background: rgba(14, 165, 233, .12);
+                color: #0369A1;
+            }
+
+            .cat-app {
+                background: rgba(236, 72, 153, .12);
+                color: #BE185D;
+            }
+
+            .cat-hr {
+                background: rgba(139, 92, 246, .12);
+                color: #6D28D9;
+            }
+
+            .cat-pp {
+                background: rgba(245, 158, 11, .12);
+                color: #B45309;
+            }
+
+            .bg-se {
+                background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            }
+
+            .bg-ak {
+                background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            }
+
+            .bg-ap {
+                background: linear-gradient(135deg, #E0F2FE, #BAE6FD);
+            }
+
+            .bg-app {
+                background: linear-gradient(135deg, #FCE7F3, #FBCFE8);
+            }
+
+            .bg-hr {
+                background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+            }
+
+            .bg-pp {
+                background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            }
+
+            .level-beginner {
+                color: #059669;
+            }
+
+            .level-intermediate {
+                color: #0369A1;
+            }
+
+            .level-advanced {
+                color: #B45309;
+            }
+
+            .status-published {
+                background: #D1FAE5;
+                color: #047857;
+            }
+
+            .status-draft {
+                background: #FEF3C7;
+                color: #B45309;
+            }
+
+            .status-archived {
+                background: #F1F5F9;
+                color: #64748B;
+            }
+
+            /* Alert */
+            .alert-success {
+                background: #D1FAE5;
+                border: 1px solid #A7F3D0;
+                color: #047857;
+                padding: 12px 16px;
+                border-radius: 12px;
+                font-size: 13px;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            /* Empty */
+            .empty-state {
+                text-align: center;
+                padding: 60px 20px;
+                background: #fff;
+                border: 1px solid #E2E8F0;
+                border-radius: 16px;
+            }
+
+            .empty-state svg {
+                margin: 0 auto 16px;
+            }
+
+            .empty-state h3 {
+                font-size: 16px;
+                font-weight: 700;
+                color: #0F172A;
+                margin-bottom: 6px;
+            }
+
+            .empty-state p {
+                font-size: 13px;
+                color: #64748B;
+                margin-bottom: 20px;
+            }
+
+            @media (max-width: 1024px) {
+
+                .course-grid,
+                .pg-stats {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            @media (max-width: 640px) {
+
+                .course-grid,
+                .pg-stats {
+                    grid-template-columns: 1fr;
+                }
+
+                .pg-top {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+            }
+        </style>
+    @endpush
+
+    <div class="pg">
+        @if(session('success'))
+            <div class="alert-success">✅ {{ session('success') }}</div>
+        @endif
+
+        <div class="pg-top">
+            <div class="pg-desc">Kelola seluruh pelatihan dan program pengembangan karyawan</div>
+            <a href="{{ route('courses.create') }}" class="btn-add">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Buat Pelatihan
+            </a>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="cat-tabs">
+            <a href="{{ route('courses.index') }}" class="cat-tab {{ !request('category') ? 'active' : '' }}">Semua
+                Program</a>
+            @foreach(\App\Models\Course::CATEGORIES as $key => $label)
+                <a href="{{ route('courses.index', ['category' => $key]) }}"
+                    class="cat-tab {{ request('category') == $key ? 'active' : '' }}">{{ $label }}</a>
+            @endforeach
+        </div>
+
+        <!-- Stats -->
+        <div class="pg-stats">
+            <div class="pgs">
+                <div class="pgs-icon" style="background:#EEF2FF">📚</div>
+                <div>
+                    <div class="pgs-val">{{ $courses->total() }}</div>
+                    <div class="pgs-lbl">Total Pelatihan</div>
+                </div>
+            </div>
+            <div class="pgs">
+                <div class="pgs-icon" style="background:#D1FAE5">✅</div>
+                <div>
+                    <div class="pgs-val">{{ $courses->where('status', 'published')->count() }}</div>
+                    <div class="pgs-lbl">Published</div>
+                </div>
+            </div>
+            <div class="pgs">
+                <div class="pgs-icon" style="background:#FEF3C7">📝</div>
+                <div>
+                    <div class="pgs-val">{{ $courses->where('status', 'draft')->count() }}</div>
+                    <div class="pgs-lbl">Draft</div>
+                </div>
+            </div>
+            <div class="pgs">
+                <div class="pgs-icon" style="background:#EDE9FE">👥</div>
+                <div>
+                    <div class="pgs-val">{{ $courses->sum(fn($c) => $c->participants->count()) }}</div>
+                    <div class="pgs-lbl">Total Peserta</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <form method="GET" action="{{ route('courses.index') }}">
+            @if(request('category'))<input type="hidden" name="category" value="{{ request('category') }}">@endif
+            <div class="search-bar">
+                <svg width="18" height="18" fill="none" stroke="#94A3B8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari pelatihan berdasarkan judul, deskripsi, atau kategori...">
+            </div>
+        </form>
+
+        <!-- Course Grid -->
+        @if($courses->count() > 0)
+            <div class="course-grid">
+                @foreach($courses as $course)
+                    @php
+                        $catKey = $course->category ?? 'service-excellence';
+                        $catMap = ['service-excellence' => ['cat-se', 'bg-se', '🎯'], 'administrasi-keuangan' => ['cat-ak', 'bg-ak', '💰'], 'administrasi-perkantoran' => ['cat-ap', 'bg-ap', '📋'], 'aplikasi-perkantoran' => ['cat-app', 'bg-app', '💻'], 'hr-sdm' => ['cat-hr', 'bg-hr', '👥'], 'pelayanan-pelanggan' => ['cat-pp', 'bg-pp', '🤝']];
+                        $cat = $catMap[$catKey] ?? $catMap['service-excellence'];
+                        $catLabel = \App\Models\Course::CATEGORIES[$catKey] ?? 'Service Excellence';
+                        $level = $course->level ?? 'beginner';
+                        $lvlLabel = \App\Models\Course::LEVELS[$level] ?? 'Beginner';
+                        $status = $course->status ?? 'published';
+                        $duration = $course->duration_hours ?? rand(4, 40);
+                    @endphp
+                    <div class="course-card">
+                        <div class="cc-thumb">
+                            @if($course->hasMedia('course_image'))
+                                <img src="{{ $course->getFirstMediaUrl('course_image') }}" alt="{{ $course->title }}">
+                            @else
+                                <div class="cc-thumb-placeholder {{ $cat[1] }}">{{ $cat[2] }}</div>
+                            @endif
+                            <span class="cc-cat-badge {{ $cat[0] }}">{{ $catLabel }}</span>
+                            <span class="cc-status status-{{ $status }}">{{ ucfirst($status) }}</span>
+                        </div>
+                        <div class="cc-body">
+                            <div class="cc-level level-{{ $level }}">{{ $lvlLabel }}</div>
+                            <div class="cc-title">{{ $course->title }}</div>
+                            <div class="cc-desc">
+                                {{ $course->description ?: 'Pelatihan profesional untuk pengembangan kompetensi karyawan.' }}
+                            </div>
+                            <div class="cc-meta">
+                                <span class="cc-meta-item">⏱️ {{ $duration }} Jam</span>
+                                <span class="cc-meta-item">👥 {{ $course->participants->count() }} Peserta</span>
+                                <span class="cc-meta-item">📝 {{ $course->tasks->count() }} Tugas</span>
+                            </div>
+                        </div>
+                        <div class="cc-footer">
+                            <div class="cc-price">Rp {{ number_format($course->price, 0, ',', '.') }}</div>
+                            <div class="cc-actions">
+                                <a href="{{ route('courses.tasks.index', $course->id) }}" class="cc-btn cc-btn-view"
+                                    title="Tugas">📝</a>
+                                <a href="{{ route('courses.quizzes.index', $course->id) }}" class="cc-btn cc-btn-view"
+                                    title="Kuis">❓</a>
+                                <a href="{{ route('courses.participants.index', $course->id) }}" class="cc-btn cc-btn-view"
+                                    title="Peserta">👥</a>
+                                <a href="{{ route('courses.edit', $course->id) }}" class="cc-btn cc-btn-edit"
+                                    title="Edit">✏️</a>
+                                <form action="{{ route('courses.destroy', $course->id) }}" method="POST" class="inline">
+                                    @csrf @method('DELETE')
+                                    <button type="button" onclick="confirmDelete(this)" class="cc-btn cc-btn-del"
+                                        title="Hapus">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-emerald-700 font-medium">{{ session('success') }}</p>
-                    </div>
+                @endforeach
+            </div>
+
+            @if($courses->hasPages())
+                <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:12px 16px">
+                    {{ $courses->appends(request()->query())->links() }}
                 </div>
             @endif
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <!-- Toolbar -->
-                <div class="p-5 border-b border-gray-100 bg-gray-50/50">
-                    <form method="GET" action="{{ route('courses.index') }}" class="flex flex-col sm:flex-row gap-4 justify-between items-center w-full">
-                        
-                        <!-- Search Box -->
-                        <div class="relative rounded-md shadow-sm w-full sm:max-w-md">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-lg transition duration-150 ease-in-out"
-                                placeholder="Cari judul atau deskripsi...">
-                        </div>
-
-                        <!-- Filters -->
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <span class="text-sm text-gray-500">Tampilkan:</span>
-                            <select name="per_page" onchange="this.form.submit()"
-                                class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg">
-                                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                                <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Table -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    Kursus
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    Harga
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    Tanggal Dibuat
-                                </th>
-                                <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                    Aksi
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-100">
-                            @forelse($courses as $course)
-                                <tr class="hover:bg-gray-50/80 transition-colors duration-200">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-12 w-12 relative rounded-lg overflow-hidden shadow-sm border border-gray-200">
-                                                @if($course->hasMedia('course_image'))
-                                                    <img src="{{ $course->getFirstMediaUrl('course_image') }}" alt="{{ $course->title }}"
-                                                        class="h-full w-full object-cover">
-                                                @else
-                                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($course->title) }}&background=E0E7FF&color=4338CA"
-                                                        alt="Placeholder" class="h-full w-full object-cover">
-                                                @endif
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-semibold text-gray-900 line-clamp-1">{{ $course->title }}</div>
-                                                <div class="text-xs text-gray-500 mt-1 line-clamp-1 max-w-sm">{{ $course->description }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
-                                            Rp {{ number_format($course->price, 0, ',', '.') }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-700 flex items-center">
-                                            <svg class="mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                            {{ $course->created_at->format('d M Y') }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-l border-gray-100">
-                                        <div class="flex items-center justify-end space-x-2">
-                                            <a href="{{ route('courses.participants.index', $course->id) }}"
-                                                class="text-teal-600 hover:text-teal-900 bg-teal-50 px-2.5 py-1.5 rounded-md transition-colors font-medium border border-teal-100 shadow-sm text-xs" title="Peserta">Peserta</a>
-                                            
-                                            <a href="{{ route('courses.tasks.index', $course->id) }}"
-                                                class="text-blue-600 hover:text-blue-900 bg-blue-50 px-2.5 py-1.5 rounded-md transition-colors font-medium border border-blue-100 shadow-sm text-xs" title="Tugas">Tugas</a>
-                                            
-                                            <a href="{{ route('courses.quizzes.index', $course->id) }}"
-                                                class="text-amber-600 hover:text-amber-900 bg-amber-50 px-2.5 py-1.5 rounded-md transition-colors font-medium border border-amber-100 shadow-sm text-xs" title="Kuis">Kuis</a>
-
-                                            <div class="w-px h-5 bg-gray-200 mx-1"></div>
-
-                                            <a href="{{ route('courses.edit', $course->id) }}"
-                                                class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-2.5 py-1.5 rounded-md transition-colors font-medium border border-indigo-100 shadow-sm text-xs">Edit</a>
-
-                                            <form action="{{ route('courses.destroy', $course->id) }}" method="POST"
-                                                class="delete-form inline-block">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" onclick="confirmDelete(this)"
-                                                    class="text-red-600 hover:text-red-900 bg-red-50 px-2.5 py-1.5 rounded-md transition-colors font-medium border border-red-100 shadow-sm text-xs">Hapus</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-14 text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                        </svg>
-                                        <h3 class="text-lg font-medium text-gray-900">Belum ada data kursus</h3>
-                                        <p class="mt-1 text-sm text-gray-500">Mulai kelola kelas dengan menambahkan kursus baru.</p>
-                                        <div class="mt-6">
-                                            <a href="{{ route('courses.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                                                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                                                </svg>
-                                                Tambah Kursus
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                @if($courses->hasPages())
-                    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 sm:px-6">
-                        {{ $courses->links() }}
-                    </div>
-                @endif
+        @else
+            <div class="empty-state">
+                <svg width="48" height="48" fill="none" stroke="#CBD5E1" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <h3>Belum ada pelatihan</h3>
+                <p>Mulai buat program pelatihan pertama untuk karyawan Anda</p>
+                <a href="{{ route('courses.create') }}" class="btn-add">➕ Buat Pelatihan Pertama</a>
             </div>
-        </div>
+        @endif
     </div>
 
     @push('scripts')
@@ -185,32 +636,22 @@
         <script>
             function confirmDelete(button) {
                 Swal.fire({
-                    title: 'Hapus Kursus?',
-                    text: "Data kursus ini akan dihapus secara permanen.",
+                    title: 'Hapus Pelatihan?',
+                    text: "Data pelatihan ini akan dihapus permanen beserta tugas dan kuis terkait.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#EF4444',
                     cancelButtonColor: '#6B7280',
                     confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal',
-                    customClass: {
-                        confirmButton: 'shadow-sm',
-                        cancelButton: 'shadow-sm'
-                    }
+                    cancelButtonText: 'Batal'
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        button.closest('form').submit();
-                    }
+                    if (result.isConfirmed) button.closest('form').submit();
                 })
             }
-            
-            // Auto submit form on typing (debounced)
             let timeout = null;
-            document.querySelector('input[name="search"]').addEventListener('input', function() {
+            document.querySelector('input[name="search"]')?.addEventListener('input', function () {
                 clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    this.form.submit();
-                }, 500);
+                timeout = setTimeout(() => this.form.submit(), 500);
             });
         </script>
     @endpush

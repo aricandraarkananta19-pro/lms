@@ -1,62 +1,228 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center space-x-3 py-1">
+        <div style="display:flex;align-items:center;gap:12px">
             <a href="{{ route('courses.quizzes.index', $course) }}"
-                class="text-gray-400 hover:text-indigo-600 transition-colors">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+                style="color:#94A3B8;text-decoration:none;display:flex;transition:color .15s"
+                onmouseover="this.style.color='#4F46E5'" onmouseout="this.style.color='#94A3B8'">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
-                {{ isset($quiz) ? 'Edit Kuis' : 'Tambah Kuis Baru' }}
-            </h2>
+            <h1 style="font-size:18px;font-weight:700;margin:0">{{ isset($quiz) ? 'Edit Kuis' : 'Buat Kuis Baru' }}</h1>
         </div>
     </x-slot>
 
-    <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-8 sm:p-10">
-                <form
-                    action="{{ isset($quiz) ? route('courses.quizzes.update', [$course, $quiz]) : route('courses.quizzes.store', $course) }}"
-                    method="POST" class="space-y-6">
-                    @csrf
-                    @if(isset($quiz)) @method('PUT') @endif
+    @push('styles')
+        <style>
+            .form-card {
+                background: #fff;
+                border: 1px solid #E2E8F0;
+                border-radius: 16px;
+                padding: 28px 32px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+                max-width: 640px;
+            }
 
-                    <div>
-                        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Judul Kuis</label>
-                        <input type="text" name="title" id="title" value="{{ old('title', $quiz->title ?? '') }}"
-                            required
-                            class="focus:ring-indigo-500 focus:border-indigo-500 block w-full py-3 sm:text-sm border-gray-300 rounded-lg">
-                        @error('title') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </div>
+            .form-section {
+                margin-bottom: 20px;
+            }
 
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi
-                            Kuis</label>
-                        <textarea name="description" id="description" rows="5"
-                            class="focus:ring-indigo-500 focus:border-indigo-500 block w-full py-3 sm:text-sm border-gray-300 rounded-lg">{{ old('description', $quiz->description ?? '') }}</textarea>
-                        @error('description') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </div>
+            .form-section h3 {
+                font-size: 15px;
+                font-weight: 700;
+                color: #0F172A;
+                margin-bottom: 4px;
+            }
 
-                    <div>
-                        <label for="time_limit" class="block text-sm font-medium text-gray-700 mb-1">Batas Waktu (Menit,
-                            Opsional)</label>
-                        <input type="number" min="1" name="time_limit" id="time_limit"
-                            value="{{ old('time_limit', $quiz->time_limit ?? '') }}"
-                            class="focus:ring-indigo-500 focus:border-indigo-500 block w-full py-3 sm:text-sm border-gray-300 rounded-lg">
-                        @error('time_limit') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </div>
+            .form-section p {
+                font-size: 12px;
+                color: #94A3B8;
+                margin-bottom: 16px;
+            }
 
-                    <div class="pt-6 border-t border-gray-100 flex justify-end space-x-3">
-                        <a href="{{ route('courses.quizzes.index', $course) }}"
-                            class="bg-white border py-2.5 px-5 rounded-lg text-sm text-gray-700">Batal</a>
-                        <button type="submit"
-                            class="bg-indigo-600 py-2.5 px-6 rounded-lg text-sm text-white hover:bg-indigo-700">Simpan</button>
-                    </div>
-                </form>
+            .form-label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: #334155;
+                margin-bottom: 6px;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 10px 14px;
+                border: 1px solid #E2E8F0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-family: inherit;
+                color: #0F172A;
+                outline: none;
+                transition: all .15s;
+            }
+
+            .form-input:focus {
+                border-color: #4F46E5;
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+            }
+
+            .form-input::placeholder {
+                color: #94A3B8;
+            }
+
+            .form-error {
+                font-size: 11px;
+                color: #DC2626;
+                margin-top: 4px;
+            }
+
+            .form-hint {
+                font-size: 11px;
+                color: #94A3B8;
+                margin-top: 4px;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .form-info {
+                background: #F8FAFC;
+                border: 1px solid #F1F5F9;
+                border-radius: 10px;
+                padding: 12px 14px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .form-info-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: #EEF2FF;
+                color: #4F46E5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+
+            .form-info-text {
+                font-size: 12px;
+                color: #64748B;
+            }
+
+            .form-info-text strong {
+                color: #0F172A;
+                font-weight: 600;
+                display: block;
+                font-size: 13px;
+                margin-bottom: 2px;
+            }
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+                padding-top: 20px;
+                border-top: 1px solid #F1F5F9;
+            }
+
+            .btn-cancel {
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                background: #fff;
+                color: #475569;
+                border: 1px solid #E2E8F0;
+                cursor: pointer;
+                font-family: inherit;
+                text-decoration: none;
+                transition: all .15s;
+            }
+
+            .btn-cancel:hover {
+                border-color: #CBD5E1;
+                background: #F8FAFC;
+            }
+
+            .btn-submit {
+                padding: 10px 24px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                background: #4F46E5;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+                box-shadow: 0 2px 8px rgba(79, 70, 229, .25);
+                transition: all .15s;
+            }
+
+            .btn-submit:hover {
+                background: #4338CA;
+                transform: translateY(-1px);
+            }
+        </style>
+    @endpush
+
+    <div class="form-card">
+        <div class="form-info">
+            <div class="form-info-icon">📚</div>
+            <div class="form-info-text">
+                <strong>{{ $course->title }}</strong>
+                Assessment untuk program pelatihan ini
             </div>
         </div>
+
+        <form
+            action="{{ isset($quiz) ? route('courses.quizzes.update', [$course, $quiz]) : route('courses.quizzes.store', $course) }}"
+            method="POST">
+            @csrf
+            @if(isset($quiz)) @method('PUT') @endif
+
+            <div class="form-section">
+                <h3>❓ Detail Kuis</h3>
+                <p>Buat kuis untuk menguji pemahaman peserta</p>
+
+                <div class="form-group">
+                    <label class="form-label">Judul Kuis *</label>
+                    <input type="text" name="title" class="form-input" value="{{ old('title', $quiz->title ?? '') }}"
+                        required placeholder="Contoh: Pre-test Pengembangan SDM">
+                    @error('title') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Deskripsi & Instruksi</label>
+                    <textarea name="description" class="form-input" rows="5"
+                        placeholder="Jelaskan peraturan dan instruksi pengerjaan kuis...">{{ old('description', $quiz->description ?? '') }}</textarea>
+                    <div class="form-hint">Berikan panduan singkat agar peserta siap</div>
+                    @error('description') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="form-group" style="max-width:200px">
+                    <label class="form-label">Batas Waktu (Menit)</label>
+                    <div style="position:relative">
+                        <input type="number" name="time_limit" class="form-input" style="padding-right:48px;" min="1"
+                            value="{{ old('time_limit', $quiz->time_limit ?? '') }}" placeholder="Kosong = Bebas">
+                        <span
+                            style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:#94A3B8;font-weight:500">Mnt</span>
+                    </div>
+                    <div class="form-hint">Dikosongkan jika tidak ada batas waktu</div>
+                    @error('time_limit') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ route('courses.quizzes.index', $course) }}" class="btn-cancel">Batal</a>
+                <button type="submit"
+                    class="btn-submit">{{ isset($quiz) ? '💾 Simpan Perubahan' : '➕ Buat Kuis' }}</button>
+            </div>
+        </form>
     </div>
 </x-app-layout>

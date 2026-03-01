@@ -1,16 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center space-x-3 py-1">
-            <a href="{{ route('courses.index') }}" class="text-gray-400 hover:text-indigo-600 transition-colors">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+        <div style="display:flex;align-items:center;gap:12px">
+            <a href="{{ route('courses.index') }}"
+                style="color:#94A3B8;text-decoration:none;display:flex;transition:color .15s"
+                onmouseover="this.style.color='#4F46E5'" onmouseout="this.style.color='#94A3B8'">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
-            <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
-                {{ isset($course) ? 'Edit Kursus: ' . $course->title : 'Tambah Kursus Baru' }}
-            </h2>
+            <h1 style="font-size:18px;font-weight:700;margin:0">
+                {{ isset($course) ? 'Edit Pelatihan' : 'Buat Pelatihan Baru' }}</h1>
         </div>
     </x-slot>
 
@@ -19,135 +19,273 @@
         <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
             rel="stylesheet" />
         <style>
+            .form-card {
+                background: #fff;
+                border: 1px solid #E2E8F0;
+                border-radius: 16px;
+                padding: 28px 32px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+                max-width: 720px;
+            }
+
+            .form-section {
+                margin-bottom: 24px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #F1F5F9;
+            }
+
+            .form-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            .form-section h3 {
+                font-size: 15px;
+                font-weight: 700;
+                color: #0F172A;
+                margin-bottom: 4px;
+            }
+
+            .form-section p {
+                font-size: 12px;
+                color: #94A3B8;
+            }
+
+            .form-group {
+                margin-top: 16px;
+            }
+
+            .form-label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: #334155;
+                margin-bottom: 6px;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 10px 14px;
+                border: 1px solid #E2E8F0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-family: inherit;
+                color: #0F172A;
+                background: #fff;
+                outline: none;
+                transition: all .15s;
+            }
+
+            .form-input:focus {
+                border-color: #4F46E5;
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+            }
+
+            .form-input::placeholder {
+                color: #94A3B8;
+            }
+
+            .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+            }
+
+            .form-row-3 {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 14px;
+            }
+
+            .form-hint {
+                font-size: 11px;
+                color: #94A3B8;
+                margin-top: 4px;
+            }
+
+            .form-error {
+                font-size: 11px;
+                color: #DC2626;
+                margin-top: 4px;
+            }
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+                padding-top: 20px;
+                border-top: 1px solid #F1F5F9;
+                margin-top: 24px;
+            }
+
+            .btn-cancel {
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                background: #fff;
+                color: #475569;
+                border: 1px solid #E2E8F0;
+                cursor: pointer;
+                font-family: inherit;
+                text-decoration: none;
+                transition: all .15s;
+            }
+
+            .btn-cancel:hover {
+                border-color: #CBD5E1;
+                background: #F8FAFC;
+            }
+
+            .btn-submit {
+                padding: 10px 24px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                background: #4F46E5;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+                box-shadow: 0 2px 8px rgba(79, 70, 229, .25);
+                transition: all .15s;
+            }
+
+            .btn-submit:hover {
+                background: #4338CA;
+                transform: translateY(-1px);
+            }
+
             .filepond--drop-label {
-                color: #4f46e5;
+                color: #4F46E5;
                 font-weight: 500;
             }
 
             .filepond--panel-root {
-                background-color: #f8fafc;
-                border: 2px dashed #cbd5e1;
-                border-radius: 0.75rem;
+                background-color: #F8FAFC;
+                border: 2px dashed #E2E8F0;
+                border-radius: 12px;
+            }
+
+            select.form-input {
+                cursor: pointer;
+            }
+
+            @media(max-width:640px) {
+
+                .form-row,
+                .form-row-3 {
+                    grid-template-columns: 1fr;
+                }
             }
         </style>
     @endpush
 
-    <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-8 sm:p-10">
-                    <div class="mb-8 border-b border-gray-100 pb-5">
-                        <h3 class="text-lg font-medium leading-6 text-gray-900">Informasi Kursus</h3>
-                        <p class="mt-1 text-sm text-gray-500">Isi detail di bawah ini untuk
-                            {{ isset($course) ? 'memperbarui data' : 'membuat' }} kursus.</p>
+    <div class="form-card">
+        <form action="{{ isset($course) ? route('courses.update', $course->id) : route('courses.store') }}"
+            method="POST" enctype="multipart/form-data">
+            @csrf
+            @if(isset($course)) @method('PUT') @endif
+
+            <div class="form-section">
+                <h3>📚 Informasi Pelatihan</h3>
+                <p>Detail dasar tentang program pelatihan</p>
+
+                <div class="form-group">
+                    <label class="form-label">Judul Pelatihan *</label>
+                    <input type="text" name="title" class="form-input" value="{{ old('title', $course->title ?? '') }}"
+                        required placeholder="Contoh: Service Excellence untuk Front Office">
+                    @error('title') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="form-row" style="margin-top:16px">
+                    <div>
+                        <label class="form-label">Kategori / Program *</label>
+                        <select name="category" class="form-input" required>
+                            <option value="">— Pilih Program —</option>
+                            @foreach(\App\Models\Course::CATEGORIES as $key => $label)
+                                <option value="{{ $key }}" {{ old('category', $course->category ?? '') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('category') <div class="form-error">{{ $message }}</div> @enderror
                     </div>
+                    <div>
+                        <label class="form-label">Level</label>
+                        <select name="level" class="form-input">
+                            @foreach(\App\Models\Course::LEVELS as $key => $label)
+                                <option value="{{ $key }}" {{ old('level', $course->level ?? 'beginner') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
-                    <form action="{{ isset($course) ? route('courses.update', $course->id) : route('courses.store') }}"
-                        method="POST" enctype="multipart/form-data" class="space-y-6">
-                        @csrf
-                        @if(isset($course))
-                            @method('PUT')
-                        @endif
-
-                        <!-- Judul -->
-                        <div>
-                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Judul Kursus</label>
-                            <div class="relative rounded-md shadow-sm">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                                        <path fill-rule="evenodd"
-                                            d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <input type="text" name="title" id="title"
-                                    value="{{ old('title', $course->title ?? '') }}" required
-                                    placeholder="Contoh: Belajar Laravel untuk Pemula"
-                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 py-3 sm:text-sm border-gray-300 rounded-lg transition duration-150">
-                            </div>
-                            @error('title') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <!-- Harga -->
-                        <div x-data="rupiahFormatter('{{ old('price', $course->price ?? '') }}')">
-                            <label for="price_display" class="block text-sm font-medium text-gray-700 mb-1">Harga
-                                Kursus</label>
-                            <div class="relative rounded-md shadow-sm xl:max-w-sm">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm font-medium">Rp</span>
-                                </div>
-                                <input type="text" id="price_display" x-model="formatted" @input="formatInput" required
-                                    placeholder="0"
-                                    class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 py-3 sm:text-sm border-gray-300 rounded-lg transition duration-150">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">IDR</span>
-                                </div>
-                                <input type="hidden" name="price" :value="rawValue">
-                            </div>
-                            @error('price') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <!-- Deskripsi -->
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi
-                                Lengkap</label>
-                            <div class="mt-1">
-                                <textarea name="description" id="description" rows="5"
-                                    placeholder="Jelaskan apa yang akan dipelajari di kursus ini..."
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full py-3 sm:text-sm border border-gray-300 rounded-lg transition duration-150">{{ old('description', $course->description ?? '') }}</textarea>
-                            </div>
-                            <p class="mt-2 text-sm text-gray-500">Tuliskan ringkasan singkat yang menarik tentang kursus
-                                ini.</p>
-                            @error('description') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <!-- Gambar (FilePond) -->
-                        <div class="pt-2">
-                            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">Thumbnail Kursus
-                                (Opsional)</label>
-                            <div class="mt-1 sm:mt-0 sm:col-span-2">
-                                <input type="file" class="filepond" name="image" data-max-file-size="2MB"
-                                    data-max-files="1" />
-
-                                @if(isset($course) && $course->hasMedia('course_image'))
-                                    <div class="mt-3 flex items-center bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                        <div class="flex-shrink-0 h-16 w-16">
-                                            <img class="h-16 w-16 rounded-md object-cover shadow-sm"
-                                                src="{{ $course->getFirstMediaUrl('course_image') }}" alt="">
-                                        </div>
-                                        <div class="ml-4 flex-1 flex justify-between">
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-900">Gambar saat ini</p>
-                                                <p class="text-xs text-gray-500">Akan diganti jika Anda mengunggah file
-                                                    baru.</p>
-                                            </div>
-                                            <a href="{{ $course->getFirstMediaUrl('course_image') }}" target="_blank"
-                                                class="text-sm font-medium text-indigo-600 hover:text-indigo-500 bg-white border border-gray-200 px-3 py-1 rounded-md">Lihat</a>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @error('image') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                            </div>
-                        </div>
-
-                        <div class="pt-6 border-t border-gray-100 flex items-center justify-end space-x-3">
-                            <a href="{{ route('courses.index') }}"
-                                class="bg-white border border-gray-300 rounded-lg shadow-sm py-2.5 px-5 mx-0 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                Membatalkan
-                            </a>
-                            <button type="submit"
-                                class="inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                {{ isset($course) ? 'Simpan Perubahan' : 'Buat Kursus' }}
-                            </button>
-                        </div>
-                    </form>
-
+                <div class="form-group">
+                    <label class="form-label">Deskripsi</label>
+                    <textarea name="description" class="form-input" rows="4"
+                        placeholder="Jelaskan apa yang akan dipelajari peserta...">{{ old('description', $course->description ?? '') }}</textarea>
+                    <div class="form-hint">Tuliskan ringkasan menarik tentang pelatihan ini</div>
+                    @error('description') <div class="form-error">{{ $message }}</div> @enderror
                 </div>
             </div>
-        </div>
+
+            <div class="form-section">
+                <h3>💰 Detail & Harga</h3>
+                <p>Konfigurasi harga dan durasi pelatihan</p>
+
+                <div class="form-row-3" style="margin-top:16px"
+                    x-data="rupiahFormatter('{{ old('price', $course->price ?? '') }}')">
+                    <div>
+                        <label class="form-label">Harga (IDR) *</label>
+                        <input type="text" class="form-input" x-model="formatted" @input="formatInput" required
+                            placeholder="Rp 0">
+                        <input type="hidden" name="price" :value="rawValue">
+                        @error('price') <div class="form-error">{{ $message }}</div> @enderror
+                    </div>
+                    <div>
+                        <label class="form-label">Durasi (Jam)</label>
+                        <input type="number" name="duration_hours" class="form-input"
+                            value="{{ old('duration_hours', $course->duration_hours ?? '') }}" placeholder="8" min="1">
+                    </div>
+                    <div>
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-input">
+                            <option value="published" {{ old('status', $course->status ?? 'published') == 'published' ? 'selected' : '' }}>Published</option>
+                            <option value="draft" {{ old('status', $course->status ?? '') == 'draft' ? 'selected' : '' }}>
+                                Draft</option>
+                            <option value="archived" {{ old('status', $course->status ?? '') == 'archived' ? 'selected' : '' }}>Archived</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>🖼️ Thumbnail</h3>
+                <p>Gambar sampul pelatihan (opsional)</p>
+
+                <div class="form-group">
+                    <input type="file" class="filepond" name="image" data-max-file-size="2MB" data-max-files="1" />
+                    @if(isset($course) && $course->hasMedia('course_image'))
+                        <div
+                            style="display:flex;align-items:center;gap:12px;margin-top:12px;padding:10px;background:#F8FAFC;border-radius:10px;border:1px solid #F1F5F9">
+                            <img src="{{ $course->getFirstMediaUrl('course_image') }}"
+                                style="width:52px;height:52px;border-radius:8px;object-fit:cover" alt="">
+                            <div style="flex:1">
+                                <div style="font-size:13px;font-weight:600;color:#0F172A">Gambar saat ini</div>
+                                <div style="font-size:11px;color:#94A3B8">Akan diganti jika mengunggah file baru</div>
+                            </div>
+                        </div>
+                    @endif
+                    @error('image') <div class="form-error">{{ $message }}</div> @enderror
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ route('courses.index') }}" class="btn-cancel">Batal</a>
+                <button type="submit"
+                    class="btn-submit">{{ isset($course) ? '💾 Simpan Perubahan' : '➕ Buat Pelatihan' }}</button>
+            </div>
+        </form>
     </div>
 
     @push('scripts')
@@ -157,55 +295,24 @@
         <script
             src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
-
         <script>
             document.addEventListener('alpine:init', () => {
                 window.Alpine.data('rupiahFormatter', (initialValue) => ({
-                    rawValue: initialValue || '',
-                    formatted: '',
-
-                    init() {
-                        if (this.rawValue) {
-                            this.formatted = this.formatRupiah(this.rawValue.toString());
-                        }
-                    },
-
-                    formatInput(e) {
-                        let val = e.target.value.replace(/[^,\d]/g, '');
-                        this.rawValue = val;
-                        this.formatted = this.formatRupiah(val);
-                    },
-
+                    rawValue: initialValue || '', formatted: '',
+                    init() { if (this.rawValue) this.formatted = this.formatRupiah(this.rawValue.toString()); },
+                    formatInput(e) { let val = e.target.value.replace(/[^,\d]/g, ''); this.rawValue = val; this.formatted = this.formatRupiah(val); },
                     formatRupiah(angka) {
-                        var number_string = angka.replace(/[^,\d]/g, '').toString(),
-                            split = number_string.split(','),
-                            sisa = split[0].length % 3,
-                            rupiah = split[0].substr(0, sisa),
-                            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-                        if (ribuan) {
-                            let separator = sisa ? '.' : '';
-                            rupiah += separator + ribuan.join('.');
-                        }
-
-                        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+                        var ns = angka.replace(/[^,\d]/g, '').toString(), split = ns.split(','), sisa = split[0].length % 3,
+                            rupiah = split[0].substr(0, sisa), ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+                        if (ribuan) { rupiah += (sisa ? '.' : '') + ribuan.join('.'); }
                         return rupiah ? 'Rp ' + rupiah : '';
                     }
                 }))
             })
-
-            // Initialize FilePond
-            FilePond.registerPlugin(
-                FilePondPluginImagePreview,
-                FilePondPluginFileValidateSize,
-                FilePondPluginFileValidateType
-            );
-
-            const inputElement = document.querySelector('input[type="file"].filepond');
-            const pond = FilePond.create(inputElement, {
-                storeAsFile: true,
-                acceptedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
-                labelIdle: 'Drag & Drop gambar Anda atau <span class="filepond--label-action">Browse</span>',
+            FilePond.registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateSize, FilePondPluginFileValidateType);
+            const pond = FilePond.create(document.querySelector('input[type="file"].filepond'), {
+                storeAsFile: true, acceptedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+                labelIdle: 'Drag & Drop gambar atau <span class="filepond--label-action">Browse</span>',
             });
         </script>
     @endpush

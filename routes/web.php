@@ -29,6 +29,14 @@ Route::middleware('auth')->group(function () {
     Route::get('courses/{course}/participants', [\App\Http\Controllers\CourseParticipantController::class, 'index'])->name('courses.participants.index');
     Route::post('courses/{course}/participants', [\App\Http\Controllers\CourseParticipantController::class, 'store'])->name('courses.participants.store');
     Route::delete('courses/{course}/participants/{participant}', [\App\Http\Controllers\CourseParticipantController::class, 'destroy'])->name('courses.participants.destroy');
+
+    // Enterprise Modules
+    Route::get('/employees', [\App\Http\Controllers\EnterpriseController::class, 'employees'])->name('employees.index');
+    Route::get('/compliance', [\App\Http\Controllers\EnterpriseController::class, 'compliance'])->name('compliance.index');
+    Route::get('/certifications', [\App\Http\Controllers\EnterpriseController::class, 'certifications'])->name('certifications.index');
+    Route::get('/analytics', [\App\Http\Controllers\EnterpriseController::class, 'analytics'])->name('analytics.index');
+    Route::get('/learning-paths', [\App\Http\Controllers\EnterpriseController::class, 'learningPaths'])->name('learning-paths.index');
+    Route::get('/webinars', [\App\Http\Controllers\EnterpriseController::class, 'webinars'])->name('webinars.index');
 });
 
 require __DIR__ . '/auth.php';
